@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тренажер HTML & CSS: Таблицы</title>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #f1f5f9; color: #0f172a; margin: 0; padding: 20px; }
+    .app { max-width: 1000px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 24px; }
+    
+    .nav { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .nav-btn {
+      flex: 1; min-width: 150px; padding: 12px 16px; background: #fff;
+      border: 2px solid #cbd5e1; border-radius: 8px; font-size: 14px;
+      font-weight: 600; color: #334155; cursor: pointer;
+    }
+    .nav-btn.active { background: #2563eb; border-color: #2563eb; color: #fff; }
+    .nav-btn.done { border-color: #16a34a; color: #15803d; }
+    .nav-btn.done.active { background: #16a34a; color: #fff; }
+    .nav-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .screen { display: none; background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+    .screen.active { display: block; }
+
+    .task-desc {
+      background: #eff6ff; border-left: 4px solid #2563eb; padding: 14px 18px;
+      border-radius: 6px; margin-bottom: 20px; line-height: 1.5;
+    }
+    .task-desc code { background: #dbeafe; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-weight: bold; }
+
+    .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 768px) { .editor-grid { grid-template-columns: 1fr; } }
+    .box-label { display: block; font-weight: 600; margin-bottom: 6px; }
+    textarea {
+      width: 100%; height: 260px; padding: 12px; font-family: monospace; font-size: 14px;
+      background: #1e293b; color: #f8fafc; border: 1px solid #94a3b8; border-radius: 8px; resize: vertical;
+    }
+    iframe { width: 100%; height: 260px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; }
+
+    .controls { margin-top: 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .action-btn {
+      background: #2563eb; color: #fff; border: none; padding: 12px 24px;
+      border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer;
+    }
+    .action-btn:hover { background: #1d4ed8; }
+    .msg { font-weight: 600; }
+    .msg.success { color: #16a34a; }
+    .msg.error { color: #dc2626; }
+
+    .quiz-item { margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #e2e8f0; }
+    .quiz-item p { font-weight: 600; margin: 0 0 8px; }
+    .quiz-item label { display: block; margin: 6px 0; cursor: pointer; }
+
+    .cert-tools { display: flex; justify-content: center; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+    .cert-tools input { padding: 10px 14px; font-size: 16px; border: 2px solid #cbd5e1; border-radius: 8px; width: 280px; }
+    .cert-card {
+      max-width: 780px; margin: 0 auto; padding: 40px; text-align: center;
+      border: 10px double #1e3a8a; background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+    }
+    .cert-card h2 { font-size: 38px; color: #1e3a8a; letter-spacing: 3px; margin: 10px 0; }
+    .cert-student {
+      font-size: 30px; font-weight: 700; color: #0f172a; border-bottom: 2px solid #64748b;
+      display: inline-block; padding: 0 24px 4px; margin: 16px 0;
+    }
+    .cert-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; padding: 0 30px; color: #475569; }
+    .cert-stamp {
+      width: 76px; height: 76px; border: 3px solid #b45309; border-radius: 50%; color: #b45309;
+      display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; transform: rotate(-12deg);
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #cert-print, #cert-print * { visibility: visible; }
+      #cert-print { position: absolute; left: 0; top: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <h1>Тренажер: Таблицы в HTML и CSS</h1>
+    <p>Выполните 3 практических задания и сдайте тест, чтобы разблокировать сертификат</p>
+  </header>
+
+  <nav class="nav">
+    <button type="button" class="nav-btn active" data-target="screen-1" id="btn-1">1. Каркас таблицы</button>
+    <button type="button" class="nav-btn" data-target="screen-2" id="btn-2">2. Границы и отступы</button>
+    <button type="button" class="nav-btn" data-target="screen-3" id="btn-3">3. Стиль и «зебра»</button>
+    <button type="button" class="nav-btn" data-target="screen-4" id="btn-4">4. Финальный тест</button>
+    <button type="button" class="nav-btn" data-target="screen-5" id="btn-5" disabled>🏆 Сертификат</button>
+  </nav>
+
+  <section class="screen active" id="screen-1">
+    <h2>Блок 1: Создание строк и ячеек</h2>
+    <div class="task-desc">
+      Таблица задается тегом <code>&lt;table&gt;</code>, строка — <code>&lt;tr&gt;</code>, заголовок — <code>&lt;th&gt;</code>, обычная ячейка — <code>&lt;td&gt;</code>.<br>
+      <strong>Задача:</strong> Добавьте вторую строку <code>&lt;tr&gt;</code> с двумя ячейками <code>&lt;td&gt;</code> (например, имя и город).
+    </div>
+    <div class="editor-grid">
+      <div>
+        <span class="box-label">Редактор кода:</span>
+        <textarea id="code-1"><table>
+  <tr>
+    <th>Имя</th>
+    <th>Город</th>
+  </tr>
+  <!-- Напишите вторую строку ниже -->
+  
+</table></textarea>
+      </div>
+      <div>
+        <span class="box-label">Предпросмотр:</span>
+        <iframe id="frame-1"></iframe>
+      </div>
+    </div>
+    <div class="controls">
+      <button type="button" class="action-btn" id="check-1">Проверить блок 1</button>
+      <span class="msg" id="msg-1"></span>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-2">
+    <h2>Блок 2: Схлопывание границ и отступы</h2>
+    <div class="task-desc">
+      Чтобы убрать двойные рамки между ячейками, тегу <code>table</code> задают <code>border-collapse: collapse;</code>. Ячейкам <code>th, td</code> задают рамку <code>border</code> и отступ <code>padding</code>.<br>
+      <strong>Задача:</strong> Добавьте <code>border-collapse: collapse;</code> для <code>table</code>, а для <code>th, td</code> задайте <code>border: 1px solid black;</code> и <code>padding: 8px;</code>.
+    </div>
+    <div class="editor-grid">
+      <div>
+        <span class="box-label">Редактор кода:</span>
+        <textarea id="code-2"><style>
+  table {
+    width: 100%;
+    /* Добавьте border-collapse ниже */
+    
+  }
+  th, td {
+    /* Добавьте border и padding ниже */
+    
+  }
+</style>
+
+<table>
+  <tr><th>Язык</th><th>Назначение</th></tr>
+  <tr><td>HTML</td><td>Структура</td></tr>
+  <tr><td>CSS</td><td>Оформление</td></tr>
+</table></textarea>
+      </div>
+      <div>
+        <span class="box-label">Предпросмотр:</span>
+        <iframe id="frame-2"></iframe>
+      </div>
+    </div>
+    <div class="controls">
+      <button type="button" class="action-btn" id="check-2">Проверить блок 2</button>
+      <span class="msg" id="msg-2"></span>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-3">
+    <h2>Блок 3: Зебра-строки и оформление шапки</h2>
+    <div class="task-desc">
+      Для выделения четных строк используют псевдокласс <code>tr:nth-child(even)</code>.<br>
+      <strong>Задача:</strong> Задайте для <code>th</code> фон <code>background-color: #2563eb; color: white;</code>, а для четных строк <code>tr:nth-child(even)</code> задайте <code>background-color: #f1f5f9;</code>.
+    </div>
+    <div class="editor-grid">
+      <div>
+        <span class="box-label">Редактор кода:</span>
+        <textarea id="code-3"><style>
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; }
+  
+  /* Напишите стили для th и tr:nth-child(even) ниже */
+  
+</style>
+
+<table>
+  <tr><th>Продукт</th><th>Цена</th></tr>
+  <tr><td>Кофе</td><td>250 ₽</td></tr>
+  <tr><td>Чай</td><td>180 ₽</td></tr>
+  <tr><td>Какао</td><td>220 ₽</td></tr>
+  <tr><td>Сок</td><td>150 ₽</td></tr>
+</table></textarea>
+      </div>
+      <div>
+        <span class="box-label">Предпросмотр:</span>
+        <iframe id="frame-3"></iframe>
+      </div>
+    </div>
+    <div class="controls">
+      <button type="button" class="action-btn" id="check-3">Проверить блок 3</button>
+      <span class="msg" id="msg-3"></span>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-4">
+    <h2>Финальный тест</h2>
+    <p>Выберите правильные ответы на все 4 вопроса:</p>
+
+    <div class="quiz-item">
+      <p>1. Какой тег создает строку в HTML-таблице?</p>
+      <label><input type="radio" name="q1" value="td"> &lt;td&gt;</label>
+      <label><input type="radio" name="q1" value="tr"> &lt;tr&gt;</label>
+      <label><input type="radio" name="q1" value="th"> &lt;th&gt;</label>
+    </div>
+
+    <div class="quiz-item">
+      <p>2. Какое CSS-свойство объединяет двойные границы ячеек в одну линию?</p>
+      <label><input type="radio" name="q2" value="collapse"> border-collapse: collapse;</label>
+      <label><input type="radio" name="q2" value="merge"> border-merge: true;</label>
+      <label><input type="radio" name="q2" value="spacing"> border-spacing: 0;</label>
+    </div>
+
+    <div class="quiz-item">
+      <p>3. Как выбрать четные строки таблицы в CSS?</p>
+      <label><input type="radio" name="q3" value="odd"> tr:nth-child(odd)</label>
+      <label><input type="radio" name="q3" value="even"> tr:nth-child(even)</label>
+      <label><input type="radio" name="q3" value="first"> tr:first-child</label>
+    </div>
+
+    <div class="quiz-item">
+      <p>4. Какой атрибут объединяет ячейки таблицы по горизонтали (несколько столбцов)?</p>
+      <label><input type="radio" name="q4" value="rowspan"> rowspan</label>
+      <label><input type="radio" name="q4" value="colspan"> colspan</label>
+      <label><input type="radio" name="q4" value="span"> cellspan</label>
+    </div>
+
+    <div class="controls">
+      <button type="button" class="action-btn" id="check-quiz">Проверить тест</button>
+      <span class="msg" id="msg-4"></span>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-5">
+    <div class="cert-tools">
+      <input type="text" id="name-input" placeholder="Введите ваше Имя и Фамилию">
+      <button type="button" class="action-btn" id="print-btn">🖨️ Сохранить / Распечатать PDF</button>
+    </div>
+
+    <div class="cert-card" id="cert-print">
+      <div style="color: #64748b; font-weight: bold; letter-spacing: 2px;">ПОДТВЕРЖДЕНИЕ НАВЫКОВ</div>
+      <h2>СЕРТИФИКАТ</h2>
+      <p>Настоящим подтверждается, что</p>
+      <div class="cert-student" id="cert-name">Ученик</div>
+      <p style="font-size: 17px; line-height: 1.6; color: #334155;">
+        успешно прошел(а) практический тренажер по теме<br>
+        <strong>«Создание и стилизация таблиц в HTML и CSS»</strong>,<br>
+        выполнив 3 практических модуля и итоговый тест.
+      </p>
+      <div class="cert-meta">
+        <div>Дата выдачи:<br><strong id="cert-date"></strong></div>
+        <div class="cert-stamp">ЗАЧТЕНО<br>HTML/CSS</div>
+        <div>Результат:<br><strong>100%</strong></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  const state = { step1: false, step2: false, step3: false, step4: false };
+
+  const navButtons = document.querySelectorAll('.nav-btn');
+  const screens = document.querySelectorAll('.screen');
+
+  navButtons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (btn.disabled) return;
+      navButtons.forEach(function (b) { b.classList.remove('active'); });
+      screens.forEach(function (s) { s.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById(btn.getAttribute('data-target')).classList.add('active');
+    });
+  });
+
+  function setupEditor(num) {
+    const area = document.getElementById('code-' + num);
+    const frame = document.getElementById('frame-' + num);
+    frame.srcdoc = area.value;
+    area.addEventListener('input', function () {
+      frame.srcdoc = area.value;
+    });
+  }
+
+  setupEditor(1);
+  setupEditor(2);
+  setupEditor(3);
+
+  function completeStep(stepNum) {
+    state['step' + stepNum] = true;
+    const btn = document.getElementById('btn-' + stepNum);
+    btn.classList.add('done');
+    if (!btn.textContent.startsWith('✓')) {
+      btn.textContent = '✓ ' + btn.textContent;
+    }
+    if (state.step1 && state.step2 && state.step3 && state.step4) {
+      const certBtn = document.getElementById('btn-5');
+      certBtn.disabled = false;
+      certBtn.classList.add('done');
+    }
+  }
+
+  document.getElementById('check-1').addEventListener('click', function () {
+    const val = document.getElementById('code-1').value.toLowerCase();
+    const msg = document.getElementById('msg-1');
+    const trs = (val.match(/<tr/g) || []).length;
+    const tds = (val.match(/<td/g) || []).length;
+
+    if (trs >= 2 && tds >= 2) {
+      msg.textContent = 'Отлично! Вторая строка с ячейками добавлена.';
+      msg.className = 'msg success';
+      completeStep(1);
+    } else {
+      msg.textContent = 'Добавьте минимум один тег <tr> и два тега <td> внутри него.';
+      msg.className = 'msg error';
+    }
+  });
+
+  document.getElementById('check-2').addEventListener('click', function () {
+    const val = document.getElementById('code-2').value.toLowerCase();
+    const msg = document.getElementById('msg-2');
+    const hasCollapse = /border-collapse\s*:\s*collapse/.test(val);
+    const hasBorder = /border\s*:/.test(val);
+    const hasPadding = /padding\s*:/.test(val);
+
+    if (hasCollapse && hasBorder && hasPadding) {
+      msg.textContent = 'Верно! Границы объединены, отступы заданы.';
+      msg.className = 'msg success';
+      completeStep(2);
+    } else {
+      msg.textContent = 'Проверьте наличие border-collapse: collapse, border и padding.';
+      msg.className = 'msg error';
+    }
+  });
+
+  document.getElementById('check-3').addEventListener('click', function () {
+    const val = document.getElementById('code-3').value.toLowerCase();
+    const msg = document.getElementById('msg-3');
+    const hasNth = /nth-child\(\s*even\s*\)/.test(val);
+    const bgCount = (val.match(/background(-color)?\s*:/g) || []).length;
+
+    if (hasNth && bgCount >= 2) {
+      msg.textContent = 'Супер! Шапка и четные строки оформлены.';
+      msg.className = 'msg success';
+      completeStep(3);
+    } else {
+      msg.textContent = 'Добавьте background-color для th и для tr:nth-child(even).';
+      msg.className = 'msg error';
+    }
+  });
+
+  document.getElementById('check-quiz').addEventListener('click', function () {
+    const msg = document.getElementById('msg-4');
+    const a1 = document.querySelector('input[name="q1"]:checked');
+    const a2 = document.querySelector('input[name="q2"]:checked');
+    const a3 = document.querySelector('input[name="q3"]:checked');
+    const a4 = document.querySelector('input[name="q4"]:checked');
+
+    if (!a1 || !a2 || !a3 || !a4) {
+      msg.textContent = 'Ответьте на все 4 вопроса.';
+      msg.className = 'msg error';
+      return;
+    }
+
+    let correct = 0;
+    if (a1.value === 'tr') correct++;
+    if (a2.value === 'collapse') correct++;
+    if (a3.value === 'even') correct++;
+    if (a4.value === 'colspan') correct++;
+
+    if (correct === 4) {
+      msg.textContent = 'Тест сдан на 4 из 4!';
+      msg.className = 'msg success';
+      completeStep(4);
+      if (!state.step1 || !state.step2 || !state.step3) {
+        msg.textContent += ' Завершите оставшиеся практические блоки 1–3, чтобы открыть сертификат.';
+      }
+    } else {
+      msg.textContent = 'Правильных ответов: ' + correct + ' из 4. Исправьте ошибки и попробуйте снова.';
+      msg.className = 'msg error';
+    }
+  });
+
+  document.getElementById('cert-date').textContent = new Date().toLocaleDateString('ru-RU');
+  document.getElementById('name-input').addEventListener('input', function (e) {
+    document.getElementById('cert-name').textContent = e.target.value.trim() || 'Ученик';
+  });
+  document.getElementById('print-btn').addEventListener('click', function () {
+    window.print();
+  });
+</script>
+
+</body>
+</html>
